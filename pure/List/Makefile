@@ -1,4 +1,4 @@
-PROGS = list list_fatp list_based list_offholder
+PROGS = list list_fatp list_based list_offholder list_riv
 CC = gcc -O3 -I../include
 
 all: $(PROGS)
@@ -13,3 +13,4 @@ list_fatp:list_fatp.o
 list_based:list_based.o
 #list_based2:list_based2
 list_offholder:list_offholder.c
+list_riv:list_riv.o
