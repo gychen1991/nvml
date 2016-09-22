@@ -14,3 +14,6 @@ list_based:list_based.o
 #list_based2:list_based2
 list_offholder:list_offholder.c
 list_riv:list_riv.o
+
+clean:
+	rm *.o $(PROGS)
