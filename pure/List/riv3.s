@@ -53,13 +53,15 @@
 direct_riv:
 .LFB43:
 	.cfi_startproc
-	#movq	RIV_REGION(%rip), %rdx	# RIV_REGION, baseAddr
-	movq	%rdi, %rcx
+	movq	RIV_REGION(%rip), %rcx	# RIV_REGION, baseAddr
+	#movq	%rdi, %rcx
 	movq	%rdi, %rax	# value, D.3326
-	sarq	$31, %rcx
+	#sarq	$31, %rcx
+
+
+	#salq	$18, %rdx	#, baseAddr
 	salq	$18, %rcx
 	andl	$2147483647, %eax	#, D.3326
-	#salq	$18, %rdx	#, baseAddr
 	orq	newvalue(%rip), %rcx	# newvalue, baseAddr
 	addq	(%rcx), %rax	# *baseAddr.15_9, D.3326
 	ret

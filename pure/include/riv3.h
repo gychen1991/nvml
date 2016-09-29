@@ -55,7 +55,7 @@ uint64_t newvalue = l3__l4;
 #define getBaseFromRIV(riv) (\
 	{\
 		uint64_t baseAddr = 0ULL;\
-		baseAddr = (riv >>(l3- l2) & l3__l2) | newvalue;\
+		baseAddr = (RIV_REGION) << l2| newvalue;\
 		*(uint64_t *)baseAddr;\
 	})
 		

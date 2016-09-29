@@ -1,41 +1,34 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "riv3.h"
+#include "offholder.h"
 
 struct node {
    int data;
-   volatile RIV *next;
+   OFF *next;
 };
+
  
 //struct node *head = NULL;
-RIV *head = NULL;
+struct list{
+	OFF *head;
+};
 
+struct list *hlist = NULL;
 void insert_node(int);
 void traverse(int *s);
  
 int main (int argc, char *argv[]) {
-	int data; 
 	//int option = atoll(argv[1]);
-	srand(2015);
-	base = rand()%100000000;
-	RIV_REGION = atoi(argv[2]);//917373;//rand()%100;
-
-	add_RIV_entry(base, RIV_REGION);
-	data = atoll(argv[1]);
-
+	hlist = malloc(sizeof(struct list)); //allocate on pmem
 	int iter = 0;
-	int num_nodes = 30000;
+	int num_nodes = 30000000;
 	long elapsed_seconds;
 	long elapsed_useconds;
 	long elapsed_utime;
 	struct timeval tempo, tempo1;
-	FILE *pfp = fopen("list_riv.txt", "a");
+	FILE *pfp = fopen("list_offholder.txt", "a");
 	gettimeofday(&tempo, NULL);
-	while(iter < num_nodes){
-		insert_node(data);
-		data++; 
-		iter++;
-	}
+	insert_node(num_nodes);
 	gettimeofday(&tempo1, NULL);
 	elapsed_seconds = tempo1.tv_sec - tempo.tv_sec;
 	elapsed_useconds = tempo1.tv_usec - tempo.tv_usec;
@@ -45,7 +38,7 @@ int main (int argc, char *argv[]) {
 	gettimeofday(&tempo, NULL);
 	iter = 0;
 	int *s = (int *)calloc(1, sizeof(int));
-	while(iter < 1){
+	while(iter < 10){
 		traverse(s);  
 		iter++;
 	}
@@ -59,41 +52,40 @@ int main (int argc, char *argv[]) {
 }
  
 
-void insert_node(int x) {
+void insert_node(int num_nodes) {
 	//struct node *t, *temp;
-	RIV *t, *temp;
-	t = RIV_MALLOC(sizeof(struct node), struct node) ;
-
- 
-	if (head == NULL) {
-		head = t;
-		R_RIV(head, struct node)->data = x;
-		R_RIV(head, struct node)->next = NULL;
-		return;
+	OFF *t, **temp;
+	
+	hlist->head = OFF_MALLOC(sizeof(struct node), struct node) ;
+	writeoh(&hlist->head, hlist->head);
+	readoh(hlist->head, struct node)->data = 0;
+	int i;
+	temp = &hlist->head;
+	for(i = 1; i < num_nodes; i++){
+		t = OFF_MALLOC(sizeof(struct node), struct node);
+		readoh(*temp, struct node)->next = t;
+		writeoh(&readoh(*temp, struct node)->next, t);
+		temp = &readoh(*temp, struct node)->next;	
+		readoh(*temp, struct node)->data = i;
 	}
- 
-	temp = head;
- 
-	while (R_RIV(temp, struct node)->next != NULL)
-		temp = R_RIV(temp, struct node)->next;   
-	R_RIV(temp, struct node)->next = t;
-	R_RIV(t, struct node)->data    = x;
-	R_RIV(t, struct node)->next    = NULL;
+	readoh(*temp, struct node)->next = NULL;
+	
 }
  
 void traverse(int *s) {
 	//struct node *t;
-	RIV *t;
-	t = head;
+	OFF **t;
  
-	if (t == NULL) {
+	t = &hlist->head;
+ 
+	if (*t == NULL) {
 		printf("Linked list is empty.\n");
 		return;
 	}
  
-	while (t != NULL) {
-		t = R_RIV(t, struct node)->next;
-		(*s)++;
+	while (*t != NULL) {
+		t = &readoh(*t, struct node)->next;
+		(*s)++;	
 	}
 }
  
